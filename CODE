@@ -1,0 +1,36 @@
+import speech_recognition as sr
+from kivy.app import App
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.boxlayout import BoxLayout
+
+class SpeechToTextApp(App):
+    def build(self):
+        # Create a label and a button
+        self.label = Label(text="Press the button to convert speech to text")
+        self.button = Button(text="Convert")
+        self.button.bind(on_press=self.convert_speech)
+
+        # Set the layout
+        layout = BoxLayout(orientation="vertical")
+        layout.add_widget(self.label)
+        layout.add_widget(self.button)
+        return layout
+
+    def convert_speech(self, instance):
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Say something!")
+            audio = r.listen(source)
+
+        try:
+            text = r.recognize_google(audio)
+            self.label.text = "You said: " + text
+        except sr.UnknownValueError:
+            self.label.text = "I'm sorry, I didn't understand what you said."
+        except sr.RequestError as e:
+            self.label.text = "I'm sorry, I could not request results from Google Speech Recognition service: {0}".format(e)
+
+if __name__ == "__main__":
+    app = SpeechToTextApp()
+    app.run()
